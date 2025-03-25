@@ -12,3 +12,12 @@ NextJS is a framework = libs + tools + conventions
 nextJS includes its own routing libraries
 
 // Add the image for the component that is included in the nextJS 
+
+
+Special Files 
+page.tsx - this file is publicly accessible 
+layout.tsx
+loading.tsx
+route.tsx - 
+not-found.tsx - Showing not-found
+error.tsx - showing general custom error message
