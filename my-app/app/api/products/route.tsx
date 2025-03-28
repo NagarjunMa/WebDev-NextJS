@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../prisma/client";
 
 export function GET() {
-    return NextResponse.json([
-        { id: 1, name: 'Bread', price: 1.99 },
-        { id: 2, name: 'Milk', price: 2.99 },
-        { id: 3, name: 'Eggs', price: 3.99 },
-    ]);
+    const products = prisma.product.findMany();
+    return NextResponse.json(products);
 }
 
 
@@ -14,16 +12,24 @@ export async function POST(request: NextRequest) {
     if (!body.name) {
         return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
-    return NextResponse.json(body);
-}
 
-export async function PUT(request: NextRequest, { params }: { params: { id: number } }) {
-    const body = await request.json();
-    if (!body.name) {
-        return NextResponse.json({ error: 'Name is required' }, { status: 400 });
-    }
-    if (params.id > 10) {
-        return NextResponse.json({ error: 'Not found' }, { status: 404 });
-    }
-    return NextResponse.json({ id: params.id, name: body.name, price: body.price });
+    await prisma.product.findUnique({
+        where: {
+            name: body.name
+        }
+    }).then((product) => {
+        if (product) {
+            return NextResponse.json({ error: "Product already exists" }, { status: 400 });
+        }
+    });
+
+    const newProduct = await prisma.product.create({
+        data: {
+            name: body.name,
+            price: body.price,
+            stock: body.stock,
+        }
+    });
+
+    return NextResponse.json(newProduct, { status: 201 });
 }
